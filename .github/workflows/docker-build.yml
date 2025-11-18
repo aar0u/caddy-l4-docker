@@ -26,6 +26,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get Caddy version
+        id: caddy_version
+        run: |
+          docker run --rm caddy:latest caddy version > version.txt
+          echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -33,4 +39,6 @@ jobs:
           file: Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner }}/caddy-l4:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/caddy-l4:latest
+            ghcr.io/${{ github.repository_owner }}/caddy-l4:${{ steps.caddy_version.outputs.version }}
