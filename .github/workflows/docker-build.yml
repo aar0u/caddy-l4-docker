@@ -26,11 +26,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get Caddy version
+      - name: Get and print Caddy version
         id: caddy_version
         run: |
-          docker run --rm caddy:latest caddy version > version.txt
-          echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
+          full_version=$(docker run --rm caddy:latest caddy version)
+          version=$(echo "$full_version" | awk '{print $1}')
+          echo "Full caddy version: $full_version"
+          echo "Tag version: $version"
+          echo "version=${version}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
